@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+
+        <link rel="stylesheet" href="style.css">
+        <script
+        src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous"></script>        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.3/fabric.min.js"></script>
+        <script src="ruler.js"></script>
+    </head>
+
+    <body>
+
+        <section id="rulerArea">
+            <div>
+                <canvas id="top" width="1500" height="15"></canvas>
+            </div>
+            <div>
+                <canvas id="left" width="800" height="15"></canvas>
+            </div>
+        </section>
+
+        <section id="mainArea">
+            <canvas id="main" width="1500" height="500"></canvas>
+        </section>
+
+        <script>
+            var scale = 1;
+            var xPos = 0;
+            var yPos = 0;
+            var width = 200;
+            var height = 200;
+
+            var canvas = new fabric.Canvas('main');
+
+            var rect = new fabric.Rect({
+                left: xPos,
+                top: yPos,
+                fill: 'orange',
+                width: width,
+                height: height
+            });
+            canvas.add(rect);
+            canvas.setZoom(scale);
+
+
+
+            var topRuler = new Ruler(document.getElementById('top'), 'top');
+            var leftRuler = new Ruler(document.getElementById('left'), 'left');
+
+            topRuler.update({x: xPos, y: yPos}, scale);
+            leftRuler.update({x: xPos, y: yPos}, scale);
+            topRuler.updateMousePosition({x: 200 * scale + 15, y: 200});
+            leftRuler.updateMousePosition({x: 200, y: 200})
+
+            topRuler.draw();
+            leftRuler.draw();
+        </script>
+
+        <script src="fab.js"></script>
+
+    </body>
+
+</html>
