@@ -13,7 +13,11 @@ class Ruler {
         this.lineWidth = 1;
         this.orgLineWidth = 1;
         this.zeroPositions = {x: 0, y: 0};
+<<<<<<< HEAD
         this.unit = 'dots'; //dots, mm, inch changed
+=======
+        this.unit = 'dots'; //dots, mm, inch info
+>>>>>>> 30b0599ba470d56b94338bcb93aea0d241a0044e
 
         if(this.side == 'left') {
             this._rotate(90);

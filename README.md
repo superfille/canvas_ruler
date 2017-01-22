@@ -1,2 +1,3 @@
 # canvas_ruler
-html javascript canvas rulers
+
+Create rulers on your page!
