@@ -133,6 +133,10 @@ class Ruler {
     
     _drawMM() {
         var dpmm = 12;
+        this._drawUnit(dpmm);
+    }
+
+    _drawUnit(increment) {
         var pos = this._getPosition();
         var length = this.canvas.width * this._downScale(1);
         var pointLengths = [this.longPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.mediumPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint];
@@ -141,12 +145,12 @@ class Ruler {
          * For simplicity we draw forwards and backwards from the Zero position
         */
         for(var i = 0; i < length; i++) {
-            var x = (i * dpmm) + pos;
-            var x2 = pos - (i * dpmm);
+            var x = i * increment + pos;
+            var x2 = pos - i * increment;
             var y = pointLengths[i % pointLengths.length];
 
-            this._drawPoint(x + 0.5, this.pointThickness + 0.5, x + 0.5, y + 0.5);
-            this._drawPoint(x2 + 0.5, this.pointThickness + 0.5, x2 + 0.5, y + 0.5);
+             this._drawPoint(x + 0.5, this.pointThickness + 0.5, x + 0.5, y + 0.5);
+             this._drawPoint(x2 + 0.5, this.pointThickness + 0.5, x2 + 0.5, y + 0.5);
 
             if(i % pointLengths.length == 0){
                 var label = i / pointLengths.length;
@@ -160,27 +164,7 @@ class Ruler {
         var dpmm = 12;
         var dpi = 25.4;
         var tenthInch = (1/ (1 /dpmm / dpi)) / 10
-        var pos = this._getPosition();
-        var length = this.canvas.width * this._downScale(1);
-        var pointLengths = [this.longPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.mediumPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint];
-
-        /*
-         * For simplicity we draw forwards and backwards from the Zero position
-        */
-        for(var i = 0; i < length; i++) {
-            var x = i * tenthInch + pos;
-            var x2 = pos - i * tenthInch;
-            var y = pointLengths[i % pointLengths.length];
-
-             this._drawPoint(x + 0.5, this.pointThickness + 0.5, x + 0.5, y + 0.5);
-             this._drawPoint(x2 + 0.5, this.pointThickness + 0.5, x2 + 0.5, y + 0.5);
-
-            if(i % pointLengths.length == 0){
-                var label = i / pointLengths.length;
-                this._drawText(x + 1.5, this.pointThickness * 0.5, label);
-                this._drawText(x2 + 1.5, this.pointThickness * 0.5, -label);
-            }
-        }
+        this._drawUnit(tenthInch);
     }
 
     _setPosition(position) {

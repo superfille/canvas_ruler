@@ -90,6 +90,9 @@
             var topRuler = new Ruler(document.getElementById('top'), 'top');
             var leftRuler = new Ruler(document.getElementById('left'), 'left');
 
+            topRuler.setUnit('inch');
+            leftRuler.setUnit('inch');
+
             topRuler.update({x: xPos, y: yPos}, scale);
             leftRuler.update({x: xPos, y: yPos}, scale);
         </script>
