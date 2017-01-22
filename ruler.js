@@ -13,13 +13,14 @@ class Ruler {
         this.lineWidth = 1;
         this.orgLineWidth = 1;
         this.zeroPositions = {x: 0, y: 0};
+        this.unit = 'dots'; //dots, mm, inch
 
         if(this.side == 'left') {
             this._rotate(90);
             this.canvas.style.top = rulerHeight + 'px';
         }
         this.parent = $('#rulerArea')[0];
-        this._initTracker();
+        this.tracker = this._createTracker();
     }
 
     /*
@@ -27,33 +28,71 @@ class Ruler {
      *          
      * scale: The scale that has been assigned to the main canvas.
      */
-    update(position, scale) {
-        this._setPosition(position);
-        this._setScale(scale);
+    update(position = null, scale = null) {
+        if(position != null) {
+            this._setPosition(position);
+        }
+
+        if(scale != null){
+            this._setScale(scale);
+        }
+
+        this._draw();
     }
 
     updateMousePosition(position) {
         if(this.side == 'top') {
-            this.tracker.css('left', ((position.x - this.parent.offsetLeft) * this.scale)  + 'px');
+            this.tracker.css('left', ((position.x - this.parent.offsetLeft))  + 'px');
         }else {
-            this.tracker.css('top', ((position.y + this.parent.offsetTop) * this.scale) + 'px');
+            this.tracker.css('top', ((position.y - this.parent.offsetTop + this.pointThickness)) + 'px');
         }
     }
 
-    draw() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    updateObjectPosition(position = null) {
+        if(position === null) {
+            this._removeObjectTracker();
+            return;
+        }
+
+        this._createObjectTrackers();
+
+        if(this.side == 'top') {
+            this.objTracker1.css('left', ((position.x * this.scale + this.pointThickness))  + 'px');
+            this.objTracker2.css('left', ((position.x2 * this.scale + this.pointThickness))  + 'px');
+        }else {
+            this.objTracker1.css('top', ((position.y * this.scale  + this.pointThickness)) + 'px');
+            this.objTracker2.css('top', ((position.y2 * this.scale + this.pointThickness)) + 'px');
+        }
+    }
+
+    _draw() {
+        var downScale = this._downScale(this.scale);
+        this.context.clearRect(0, 0, this.canvas.width * downScale, this.canvas.height * downScale);
         this.context.beginPath();
-        this._drawPixel(); //DONE
-        //this._drawMM(); //DONE
-        //this._drawInch(); //DONE
+        
+        switch(this.unit) {
+            case 'dots':
+                this._drawPixel();
+                break;
+            case 'mm':
+                this._drawMM();
+                break;
+            case 'inch':
+                this._drawInch();
+                break;
+        }
+
         this.context.stroke();
+    }
+
+    setUnit(unit){
+        this.unit = unit;
     }
 
     _drawPixel() {
         var pointLength = 0;
         var pos = -this._getPosition();
-        var downScale = this.scale < 1 ? (1 / this.scale) : 1;
-        var length = this.canvas.width * downScale
+        var length = this.canvas.width * this._downScale(1);
         var multiple = 1
 
         if(this.scale <= .3)      multiple = 4;
@@ -95,8 +134,7 @@ class Ruler {
     _drawMM() {
         var dpmm = 12;
         var pos = this._getPosition();
-        var downScale = this.scale < 1 ? (1 / this.scale) : 1;
-        var length = this.canvas.width * downScale
+        var length = this.canvas.width * this._downScale(1);
         var pointLengths = [this.longPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.mediumPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint];
 
         /*
@@ -123,8 +161,7 @@ class Ruler {
         var dpi = 25.4;
         var tenthInch = (1/ (1 /dpmm / dpi)) / 10
         var pos = this._getPosition();
-        var downScale = this.scale < 1 ? (1 / this.scale) : 1;
-        var length = this.canvas.width * downScale
+        var length = this.canvas.width * this._downScale(1);
         var pointLengths = [this.longPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.mediumPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint];
 
         /*
@@ -162,6 +199,7 @@ class Ruler {
 
     _setScale(scale) {
         this.scale = scale;
+        this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.scale(scale, 1);
         
         var downScale = (1 / scale);
@@ -200,14 +238,38 @@ class Ruler {
         this.canvas.style.transformOrigin = origin;
     }
 
-    _initTracker() {
-        this.guideID = this.side + '_guide';
+    _downScale(v) {
+        return this.scale < 1 ? (1 / this.scale) : v;
+    }
+
+    _createObjectTrackers() {
+        if(this.objTracker1 === undefined || this.objTracker1 === null || this.objTracker2 === undefined || this.objTracker2 === null) {
+            this._removeObjectTracker();
+            this.objTracker1 = this._createTracker();
+            this.objTracker2 = this._createTracker();
+        }
+    }
+
+    _removeObjectTracker() {
+        if(this.objTracker1 !== undefined && this.objTracker1 !== null) {
+            this.objTracker1.remove();
+            this.objTracker1 = null;
+        }
+
+        if(this.objTracker2 !== undefined && this.objTracker2 !== null) {
+            this.objTracker2.remove();
+            this.objTracker2 = null;
+        }
+    }
+
+    _createTracker() {
         var s = this.side == 'top' ? 'height' : 'width';
         if(this.side == 'top') {
             s = 'height:' + this.pointThickness + 'px;' + ' top: 0px';
         }else {
             s = 'width:' + this.pointThickness + 'px;' + ' left: 0px';
         }
-        this.tracker = $('<div id="' + this.guideID + '" class="ruler_guide" style="' + s + '"></div>').appendTo(this.parent);
+
+        return $('<div class="ruler_guide" style="' + s + '"></div>').appendTo(this.parent);
     }
 }

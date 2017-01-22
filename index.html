@@ -4,10 +4,12 @@
         <title></title>
 
         <link rel="stylesheet" href="style.css">
-        <script
-        src="https://code.jquery.com/jquery-3.1.1.min.js"
-        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-        crossorigin="anonymous"></script>        
+         <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+        <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone-min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.marionette/3.0.0/backbone.marionette.js"></script>-->
+        
+        
         <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.3/fabric.min.js"></script>
         <script src="ruler.js"></script>
     </head>
@@ -43,24 +45,54 @@
                 width: width,
                 height: height
             });
+
+            canvas.on('object:moving', function(ev) {
+                topRuler.updateObjectPosition({x: rect.left, x2: (rect.left + rect.width)});
+                leftRuler.updateObjectPosition({y: rect.top, y2: (rect.top + rect.height)});
+
+                 topRuler.update({x: rect.left, y: rect.top}, canvas.getZoom());
+                 leftRuler.update({x: rect.left, y: rect.top}, canvas.getZoom());
+            });
+
+            canvas.on('before:selection:cleared', function(ev) {
+                topRuler.updateObjectPosition();
+                leftRuler.updateObjectPosition();
+            });
+
             canvas.add(rect);
             canvas.setZoom(scale);
 
+            canvas.on('mouse:move', function(value) {
+                var x = value.e.clientX;
+                var y = value.e.clientY;
 
+                topRuler.updateMousePosition({x: x, y: y});
+                leftRuler.updateMousePosition({x: x, y: y});
+            });
+
+            canvas.on('mouse:down', function(ev) {
+                if(ev.e.which == 1) {
+                    //left
+                    // var scale = canvas.getZoom();
+                    // scale += .125;
+                    // canvas.setZoom(scale);
+                }else if(ev.e.which == 2) {
+                    //right
+                    var scale = canvas.getZoom();
+                    scale += -.125;
+                    canvas.setZoom(scale);
+                }
+
+                topRuler.update(null, scale);
+                leftRuler.update(null, scale);
+            });
 
             var topRuler = new Ruler(document.getElementById('top'), 'top');
             var leftRuler = new Ruler(document.getElementById('left'), 'left');
 
             topRuler.update({x: xPos, y: yPos}, scale);
             leftRuler.update({x: xPos, y: yPos}, scale);
-            topRuler.updateMousePosition({x: 200 * scale + 15, y: 200});
-            leftRuler.updateMousePosition({x: 200, y: 200})
-
-            topRuler.draw();
-            leftRuler.draw();
         </script>
-
-        <script src="fab.js"></script>
 
     </body>
 
