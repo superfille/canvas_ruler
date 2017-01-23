@@ -10,7 +10,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.marionette/3.0.0/backbone.marionette.js"></script>-->
         
         
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.3/fabric.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.3/fabric.js"></script>
         <script src="ruler.js"></script>
     </head>
 
@@ -18,23 +18,23 @@
 
         <section id="rulerArea">
             <div>
-                <canvas id="top" width="1500" height="15"></canvas>
+                <canvas id="top" width="400" height="15"></canvas>
             </div>
             <div>
-                <canvas id="left" width="800" height="15"></canvas>
+                <canvas id="left" width="400" height="15"></canvas>
             </div>
         </section>
 
         <section id="mainArea">
-            <canvas id="main" width="1500" height="500"></canvas>
+            <canvas id="main" width="400" height="400"></canvas>
         </section>
 
         <script>
             var scale = 1;
-            var xPos = 0;
-            var yPos = 0;
-            var width = 200;
-            var height = 200;
+            var xPos = 150;
+            var yPos = 150;
+            var width = 100;
+            var height = 100;
 
             var canvas = new fabric.Canvas('main');
 
@@ -43,7 +43,8 @@
                 top: yPos,
                 fill: 'orange',
                 width: width,
-                height: height
+                height: height,
+                selectable: false
             });
 
             canvas.on('object:moving', function(ev) {
@@ -73,9 +74,12 @@
             canvas.on('mouse:down', function(ev) {
                 if(ev.e.which == 1) {
                     //left
-                    // var scale = canvas.getZoom();
-                    // scale += .125;
+                     var scale = canvas.getZoom();
+                    scale += .125;
                     // canvas.setZoom(scale);
+                    canvas.zoomToPoint(new fabric.Point(ev.e.clientX, ev.e.clientY), scale)
+                    //canvas.zoomToPoint(new fabric.Point(canvas.width/2, canvas.height/2), scale)
+                    //canvas.setZoom(scale)
                 }else if(ev.e.which == 2) {
                     //right
                     var scale = canvas.getZoom();
@@ -83,18 +87,18 @@
                     canvas.setZoom(scale);
                 }
 
-                topRuler.update(null, scale);
-                leftRuler.update(null, scale);
+                topRuler.update(null, scale, canvas.viewportTransform);
+                leftRuler.update(null, scale, canvas.viewportTransform);
             });
 
             var topRuler = new Ruler(document.getElementById('top'), 'top');
             var leftRuler = new Ruler(document.getElementById('left'), 'left');
 
-            topRuler.setUnit('inch');
-            leftRuler.setUnit('inch');
+            topRuler.setUnit('dots');
+            leftRuler.setUnit('dots');
 
-            topRuler.update({x: xPos, y: yPos}, scale);
-            leftRuler.update({x: xPos, y: yPos}, scale);
+            topRuler.update({x: xPos, y: yPos}, scale, canvas.viewportTransform);
+            leftRuler.update({x: xPos, y: yPos}, scale, canvas.viewportTransform);
         </script>
 
     </body>

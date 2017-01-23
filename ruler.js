@@ -28,13 +28,17 @@ class Ruler {
      *          
      * scale: The scale that has been assigned to the main canvas.
      */
-    update(position = null, scale = null) {
+    update(position = null, scale = null, transform = null) {
         if(position != null) {
             this._setPosition(position);
         }
 
         if(scale != null){
             this._setScale(scale);
+        }
+
+        if(transform != null) {
+            this._setTransform(transform);
         }
 
         this._draw();
@@ -181,14 +185,19 @@ class Ruler {
         return this.side == 'top' ? Math.round((this.zeroPositions.x)) : Math.round((this.zeroPositions.y));
     }
 
-    _setScale(scale) {
+    _setScale(scale, transform) {
         this.scale = scale;
-        this.context.setTransform(1, 0, 0, 1, 0, 0);
-        this.context.scale(scale, 1);
-        
         var downScale = (1 / scale);
-
         this.context.lineWidth = this.orgLineWidth * downScale;
+    }
+
+    _setTransform(transform) {
+        this.transform = transform;
+        if(this.side == 'top') {
+            this.context.setTransform(transform[0], 0, 0, 1, transform[4], 1);
+        }else {
+            this.context.setTransform(1, 0, 0, transform[3], 0, transform[5]);
+        }
     }
 
     _drawPoint(x1, y1, x2, y2) {
@@ -202,7 +211,7 @@ class Ruler {
          * we save the context change the transform and then restore the context.
          */
         this.context.save();
-        this.context.setTransform(1, 0, 0, 1, 0, 0);
+        this.context.setTransform(1, 0, 0, 1, this.transform[4], 0);
         this.context.fillText(text, x * this.scale, y);
         this.context.restore();
     }
