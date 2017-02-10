@@ -1,3 +1,3 @@
 # canvas_ruler
 
-Create rulers oliten your page!
+Create rulers ochangen your page!

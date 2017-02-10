@@ -94,27 +94,38 @@ class Ruler {
 
 	drawPixel() {
 		var pointLengths = [this.longPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.mediumPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint];
-
 		var increment = 10;
 		var multi = 10
-		this.drawUnit(increment, pointLengths, multi);
+
+
+		if (this.scale <= 2) {
+			increment = 10;
+			multi = 10;
+		}
+		else if(this.scale <= 4) {
+			increment = 5;
+			multi = 5
+		} 
+
+		
+		this.drawRuler(increment, pointLengths, multi);
 	}
 	
 	drawMM() {
 		var dpmm = 12;
 		var pointLengths = [this.longPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.mediumPoint, this.smallPoint, this.smallPoint, this.smallPoint, this.smallPoint];
 	
-		this.drawUnit(dpmm, pointLengths);
+		this.drawRuler(dpmm, pointLengths);
 	}
 
 	drawInch() {
 		var dpmm = 12;
 		var dpi = 25.4;
 		var tenthInch = (1/ (1 /dpmm / dpi)) / 10
-		this.drawUnit(tenthInch);
+		this.drawRuler(tenthInch);
 	}
 
-	drawUnit(increment, pointLengths, multi) {
+	drawRuler(increment, pointLengths, multi) {
 		var pos = this._getPosition();
 		var length = this.canvas.width * this._downScale(1);
 
